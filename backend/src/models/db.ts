@@ -44,6 +44,7 @@ export interface Opportunity {
   publishedAt: string;
   scrapedAt: string;
   tags: string[];
+  createdAt?: Date;
 }
 
 export interface Application {
@@ -135,6 +136,7 @@ const OpportunitySchema = new mongoose.Schema<Opportunity>({
   publishedAt: { type: String, default: () => new Date().toISOString() },
   scrapedAt: { type: String, default: () => new Date().toISOString() },
   tags: { type: [String], default: [] },
+  createdAt: { type: Date, default: Date.now, expires: 864000 }, // 10-Day TTL (10 * 24 * 60 * 60 seconds)
 }, { versionKey: false });
 
 const ApplicationSchema = new mongoose.Schema<Application>({
@@ -231,6 +233,9 @@ class MongoDatabase {
 
       // Seed Initial Scraper Stats if missing
       await this.seedScraperStats();
+
+      // Ensure 10-day TTL index on opportunities (expireAfterSeconds: 864000)
+      await this.ensureOpportunityTTL();
     } catch (err: any) {
       console.error('❌ Failed to connect to MongoDB Atlas:', err.message);
       this.isConnected = false;
@@ -385,6 +390,29 @@ class MongoDatabase {
     }
   }
 
+  private async ensureOpportunityTTL() {
+    try {
+      // Ensure native MongoDB TTL index (10 days = 864,000 seconds)
+      await OpportunityModel.collection.createIndex(
+        { createdAt: 1 },
+        { expireAfterSeconds: 864000, background: true }
+      );
+
+      // Backfill any opportunities missing createdAt so they are governed by TTL
+      const missing = await OpportunityModel.find({ createdAt: { $exists: false } }).limit(500);
+      if (missing.length > 0) {
+        for (const doc of missing) {
+          const dateVal = doc.scrapedAt ? new Date(doc.scrapedAt) : new Date();
+          const validDate = isNaN(dateVal.getTime()) ? new Date() : dateVal;
+          await OpportunityModel.updateOne({ _id: doc._id }, { $set: { createdAt: validDate } });
+        }
+        console.log(`🍃 Configured 10-day TTL index on opportunities (backfilled ${missing.length} records).`);
+      }
+    } catch (e: any) {
+      console.warn('Notice ensuring TTL index:', e.message);
+    }
+  }
+
   // --- Users ---
   public async getUsers(): Promise<User[]> {
     return UserModel.find({}, { _id: 0, __v: 0 }).lean();
@@ -423,7 +451,16 @@ class MongoDatabase {
 
   // --- Opportunities ---
   public async getOpportunities(): Promise<Opportunity[]> {
-    return OpportunityModel.find({}, { _id: 0, __v: 0 })
+    const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+    return OpportunityModel.find(
+      {
+        $or: [
+          { createdAt: { $gte: tenDaysAgo } },
+          { createdAt: { $exists: false } },
+        ]
+      },
+      { _id: 0, __v: 0 }
+    )
       .sort({ publishedAt: -1, scrapedAt: -1 })
       .lean();
   }
@@ -455,6 +492,7 @@ class MongoDatabase {
             id: item.id,
             externalId: item.externalId,
             publishedAt: item.publishedAt || new Date().toISOString(),
+            createdAt: new Date(),
           }
         },
         upsert: true
