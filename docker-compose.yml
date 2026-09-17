@@ -1,0 +1,15 @@
+services:
+  legaljobs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: legaljobs-app
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - JWT_SECRET=legaljobs_production_master_key_2026
+      - NODE_ENV=production
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

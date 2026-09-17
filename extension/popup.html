@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LegalJobs Autofill</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <span class="icon">⚖️</span>
+      <span class="title">LegalJobs Autofill</span>
+    </div>
+    <span class="badge" id="syncStatus">Synced</span>
+  </div>
+
+    <!-- Auth Login Box -->
+    <div class="auth-card" id="authBox" style="display: none;">
+      <div class="auth-title">🔐 Account Login</div>
+      <div class="auth-desc">Enter your LegalJobs credentials to link your candidate profile.</div>
+      <input type="text" id="extUsername" placeholder="Username (e.g. advocate_rahul)" />
+      <input type="password" id="extPassword" placeholder="Password" />
+      <button id="extLoginBtn" class="primary-btn" style="margin-top: 6px;">Sign In & Sync Profile</button>
+      <div id="authMsg" class="status-msg" style="margin-top: 4px;"></div>
+    </div>
+
+    <!-- Candidate Profile Card -->
+    <div class="candidate-card" id="candidatePreview">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <div class="candidate-name" id="previewName">Loading profile...</div>
+          <div class="candidate-meta" id="previewCollege">Law School • Year</div>
+        </div>
+        <button id="extLogoutBtn" title="Switch Account" style="background: transparent; border: none; color: #94a3b8; font-size: 11px; cursor: pointer;">Sign Out</button>
+      </div>
+      <div class="tag-row">
+        <span class="tag" id="previewPractice">Corporate</span>
+        <span class="tag" id="previewLocation">Bengaluru</span>
+      </div>
+    </div>
+
+    <div class="safety-banner">
+      <span class="shield">🛡️</span>
+      <span><strong>Human-in-the-Loop Safe:</strong> Form fields will be filled for your inspection. The extension will <strong>never</strong> auto-submit.</span>
+    </div>
+
+    <button id="autofillBtn" class="primary-btn">
+      <span>⚡ Autofill This Form</span>
+    </button>
+    <div id="statusMsg" class="status-msg"></div>
+
+    <div class="settings-section">
+      <details>
+        <summary>⚙️ API Sync Settings</summary>
+        <div class="settings-body">
+          <label>Backend API URL</label>
+          <input type="text" id="apiUrlInput" value="http://localhost:5000" />
+          <button id="refreshProfileBtn" class="secondary-btn">↻ Re-fetch Candidate Profile</button>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
