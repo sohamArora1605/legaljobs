@@ -99,7 +99,7 @@ router.get('/opportunities', async (req: Request, res: Response): Promise<void> 
   }
 });
 
-router.post('/opportunities/scrape', async (_req: Request, res: Response): Promise<void> => {
+const handleScrape = async (_req: Request, res: Response): Promise<void> => {
   try {
     const result = await runScrapers();
     res.json({
@@ -110,20 +110,11 @@ router.post('/opportunities/scrape', async (_req: Request, res: Response): Promi
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Scraper failed' });
   }
-});
+};
 
-router.post('/admin/scrape', async (_req: Request, res: Response): Promise<void> => {
-  try {
-    const result = await runScrapers();
-    res.json({
-      message: 'Scraping cycle executed successfully (Top 3 pages polled)',
-      ...result,
-      stats: await db.getScraperStats(),
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Scraper failed' });
-  }
-});
+router.post('/opportunities/scrape', handleScrape);
+router.get('/opportunities/scrape', handleScrape);
+router.post('/admin/scrape', handleScrape);
 
 // -----------------------------------------------------------------------------
 // TRACKING BOARD (Personal Applications)
