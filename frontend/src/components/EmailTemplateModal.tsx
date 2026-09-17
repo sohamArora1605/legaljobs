@@ -177,7 +177,7 @@ export const EmailTemplateModal: React.FC<EmailTemplateModalProps> = ({ firm, pr
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           <button
             onClick={handleCopy}
             className="btn-secondary"
@@ -187,7 +187,7 @@ export const EmailTemplateModal: React.FC<EmailTemplateModalProps> = ({ firm, pr
             <span>{copied ? 'Copied to Clipboard!' : 'Copy Template'}</span>
           </button>
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button
               onClick={handleOpenGmail}
               className="btn-gold"

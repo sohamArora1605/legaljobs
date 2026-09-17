@@ -62,32 +62,22 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile, onSaveProfile
   };
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem' }}>
+    <div className="responsive-container" style={{ maxWidth: '1000px' }}>
       {/* Header Banner */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(18, 25, 43, 0.8) 0%, rgba(10, 15, 29, 0.95) 100%)',
-        border: '1px solid rgba(212, 175, 55, 0.25)',
-        borderRadius: '16px',
-        padding: '2rem',
-        marginBottom: '2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: 'var(--shadow-luxury)'
-      }}>
+      <div className="responsive-banner">
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(212, 175, 55, 0.1)', border: '1px solid rgba(212, 175, 55, 0.3)', padding: '2px 10px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, color: '#facc15', marginBottom: '0.5rem' }}>
             <UserCheck size={14} /> USER-SPECIFIC AUTOFILL SETTINGS
           </div>
-          <h1 className="font-serif gold-gradient-text" style={{ fontSize: '2.25rem', fontWeight: 800 }}>
+          <h1 className="font-serif gold-gradient-text responsive-title">
             Candidate Profile & Extension Engine
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem', maxWidth: '650px', lineHeight: 1.5 }}>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', maxWidth: '650px', lineHeight: 1.5 }}>
             Fill and save your personal, academic, and internship details here. When you open the <strong>LegalJobs Chrome Extension</strong>, log in with your username and password to automatically sync these exact details for 1-click form autofill.
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
           <button onClick={copyExtensionConfig} className="btn-secondary" style={{ fontSize: '0.8rem' }}>
             {copiedToken ? <Check size={16} color="#34d399" /> : <Copy size={16} />}
             <span>{copiedToken ? 'JSON Exported!' : 'Export Profile JSON'}</span>
@@ -103,7 +93,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile, onSaveProfile
             <Briefcase size={18} /> Personal & Contact Info
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="responsive-form-grid-2">
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '4px' }}>Full Name *</label>
               <input
@@ -155,7 +145,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile, onSaveProfile
             <GraduationCap size={18} /> Law School & Academic Credentials
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="responsive-form-grid-2">
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '4px' }}>Current Law School / University *</label>
               <input
@@ -316,7 +306,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile, onSaveProfile
             <MapPin size={18} /> Internship Preferences & Timeline
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+          <div className="responsive-form-grid-3">
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '4px' }}>Preferred Practice Area</label>
               <input
@@ -380,14 +370,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile, onSaveProfile
         </div>
 
         {/* Save Bar */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           {savedSuccess && (
             <span style={{ fontSize: '0.85rem', color: '#34d399', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Check size={16} /> Profile synced and saved!
             </span>
           )}
 
-          <button type="submit" disabled={isSaving} className="btn-gold" style={{ padding: '0.75rem 2rem' }}>
+          <button type="submit" disabled={isSaving} className="btn-gold" style={{ padding: '0.75rem 2rem', minWidth: '180px' }}>
             <Save size={16} />
             <span>{isSaving ? 'Saving Profile...' : 'Save Profile Changes'}</span>
           </button>

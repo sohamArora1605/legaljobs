@@ -59,7 +59,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess, onBackToPortal })
           background: 'var(--bg-card)',
           border: '1px solid var(--border-gold)',
           borderRadius: '16px',
-          padding: '2.5rem',
+          padding: '1.75rem 1.5rem',
           boxShadow: 'var(--shadow-modal)'
         }}>
           <div className="text-center mb-8">

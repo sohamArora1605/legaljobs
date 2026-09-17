@@ -281,3 +281,220 @@ button, a, select, input[type="file"] + label {
     scroll-behavior: auto !important;
   }
 }
+
+/* Mobile Responsive System & Breakpoints */
+.responsive-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 0.85rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    padding: 1.75rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    padding: 2rem;
+  }
+}
+
+/* Responsive Banner */
+.responsive-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: 14px;
+  padding: 1.25rem 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-luxury);
+  transition: var(--transition-smooth);
+}
+
+@media (min-width: 768px) {
+  .responsive-banner {
+    padding: 2rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Responsive Headings */
+.responsive-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 0.35rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-title {
+    font-size: 1.85rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-title {
+    font-size: 2.25rem;
+  }
+}
+
+/* Responsive Card Grids */
+.responsive-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .responsive-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+/* Responsive Form Grids */
+.responsive-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-form-grid-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+}
+
+.responsive-form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-form-grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-form-grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Mobile Kanban Scroller & Snap */
+.kanban-board-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (max-width: 1023px) {
+  .kanban-scroll-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    scrollbar-width: thin;
+  }
+
+  .kanban-column-snap {
+    scroll-snap-align: center;
+    flex: 0 0 85vw;
+    max-width: 360px;
+    min-height: 520px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kanban-scroll-track {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.25rem;
+    align-items: flex-start;
+  }
+
+  .kanban-column-snap {
+    min-height: 680px;
+  }
+}
+
+/* Mobile Bottom Navigation Bar (App-like UX) */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  background: var(--bg-header);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-gold);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 100;
+  padding: 0 0.5rem;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+  .mobile-bottom-nav {
+    display: none;
+  }
+}
+
+/* Mobile modal sizing */
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0.75rem;
+  }
+
+  .modal-content {
+    padding: 1.15rem;
+    max-height: 92vh;
+    border-radius: 12px;
+  }
+
+  /* Safe tap target sizes */
+  button, input, select {
+    min-height: 38px;
+  }
+}
+
+/* Navigation display helpers */
+@media (max-width: 767px) {
+  .desktop-nav {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+

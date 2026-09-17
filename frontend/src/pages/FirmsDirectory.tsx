@@ -37,38 +37,27 @@ export const FirmsDirectory: React.FC<FirmsDirectoryProps> = ({
   });
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+    <div className="responsive-container">
       {/* Header Banner */}
-      <div style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-gold)',
-        borderRadius: '16px',
-        padding: '2rem',
-        marginBottom: '2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: 'var(--shadow-luxury)',
-        transition: 'var(--transition-smooth)'
-      }}>
+      <div className="responsive-banner">
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(212, 175, 55, 0.12)', border: '1px solid var(--border-gold)', padding: '2px 10px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-primary)', marginBottom: '0.75rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(212, 175, 55, 0.12)', border: '1px solid var(--border-gold)', padding: '2px 10px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-primary)', marginBottom: '0.5rem' }}>
             <Shield size={14} /> TIER-1 & BOUTIQUE DIRECTORY
           </div>
-          <h1 className="font-serif gold-gradient-text" style={{ fontSize: '2.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+          <h1 className="font-serif gold-gradient-text responsive-title">
             Top 100 Legal Companies & Chambers
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '780px', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', maxWidth: '780px', lineHeight: 1.5 }}>
             Curated intelligence database of leading Indian law firms, appellate chambers, and commercial practices. View strict application modalities, eligibility criteria, HR vs query email warnings, and auto-generate tailored cover letters.
           </p>
         </div>
 
-        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <div style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)', padding: '1rem 1.5rem', borderRadius: '12px', boxShadow: 'var(--shadow-luxury)' }}>
-            <span style={{ display: 'block', fontSize: '1.75rem', fontWeight: 800, color: 'var(--gold-primary)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)', padding: '0.75rem 1.25rem', borderRadius: '10px', boxShadow: 'var(--shadow-luxury)', textAlign: 'center', minWidth: '130px' }}>
+            <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: 800, color: 'var(--gold-primary)' }}>
               {filteredFirms.length} / {firms.length}
             </span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Firms Filtered
             </span>
           </div>
@@ -78,12 +67,12 @@ export const FirmsDirectory: React.FC<FirmsDirectoryProps> = ({
       {/* Filter Controls Bar */}
       <div style={{
         display: 'flex',
-        gap: '1rem',
-        marginBottom: '1.75rem',
+        gap: '0.75rem',
+        marginBottom: '1.5rem',
         flexWrap: 'wrap',
         alignItems: 'center',
         background: 'var(--bg-subtle)',
-        padding: '1rem 1.25rem',
+        padding: '0.85rem 1rem',
         borderRadius: '12px',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-luxury)'
@@ -179,11 +168,7 @@ export const FirmsDirectory: React.FC<FirmsDirectoryProps> = ({
       </div>
 
       {/* Grid of Law Firms */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
-        gap: '1.5rem'
-      }}>
+      <div className="responsive-card-grid">
         {filteredFirms.map((firm) => {
           const isApplied = appliedFirmNames.has(firm.name);
           const isEmailModality = firm.modality === 'direct_email' || firm.modality === 'chamber_outreach';

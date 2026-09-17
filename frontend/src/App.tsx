@@ -349,45 +349,52 @@ function App() {
         <header style={{
           backgroundColor: 'var(--bg-header)',
           backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           borderBottom: '1px solid var(--border-gold)',
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          padding: '0.75rem 2rem',
+          padding: '0.65rem 1rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.5rem',
           transition: 'background-color 0.3s ease, border-color 0.3s ease'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => setCurrentTab('directory')}>
-            <span className="font-serif gold-gradient-text" style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '1px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }} onClick={() => setCurrentTab('directory')}>
+            <span className="font-serif gold-gradient-text" style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '0.8px' }}>
               LEGALJOBS
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button
               onClick={() => setCurrentTab('directory')}
+              className="desktop-nav"
               style={{
                 background: 'transparent',
                 border: 'none',
                 color: currentTab === 'directory' ? 'var(--gold-primary)' : 'var(--text-secondary)',
                 fontWeight: currentTab === 'directory' ? 700 : 500,
-                fontSize: '0.9rem',
-                cursor: 'pointer'
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                padding: '0.4rem 0.6rem'
               }}
             >
               100 Law Firms
             </button>
             <button
               onClick={() => setCurrentTab('aggregator')}
+              className="desktop-nav"
               style={{
                 background: 'transparent',
                 border: 'none',
                 color: currentTab === 'aggregator' ? 'var(--gold-primary)' : 'var(--text-secondary)',
                 fontWeight: currentTab === 'aggregator' ? 700 : 500,
-                fontSize: '0.9rem',
-                cursor: 'pointer'
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                padding: '0.4rem 0.6rem'
               }}
             >
               Live Feed
@@ -402,32 +409,33 @@ function App() {
                 border: '1px solid var(--border-gold)',
                 color: theme === 'dark' ? '#facc15' : '#b45309',
                 borderRadius: '8px',
-                padding: '0.45rem 0.65rem',
+                padding: '0.4rem 0.6rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.4rem',
-                fontSize: '0.75rem',
+                gap: '0.35rem',
+                fontSize: '0.72rem',
                 fontWeight: 700,
+                minHeight: '34px',
                 transition: 'all 0.2s'
               }}
             >
-              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-              <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+              {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+              <span className="desktop-nav">{theme === 'dark' ? 'Light' : 'Dark'}</span>
             </button>
 
             <button
               onClick={() => setCurrentTab('auth')}
               className="btn-gold"
-              style={{ padding: '0.5rem 1.1rem', fontSize: '0.85rem' }}
+              style={{ padding: '0.45rem 0.9rem', fontSize: '0.8rem', minHeight: '34px' }}
             >
-              Sign In to Chambers
+              Sign In
             </button>
           </div>
         </header>
       )}
 
-      <main className="flex-1 w-full mx-auto">
+      <main className="flex-1 w-full mx-auto" style={{ paddingBottom: session ? '72px' : '0' }}>
         {currentTab === 'auth' && (
           <AuthPage
             onSuccess={handleLoginSuccess}
@@ -482,12 +490,13 @@ function App() {
       {/* Footer */}
       <footer style={{
         borderTop: '1px solid var(--border-color)',
-        padding: '1.5rem 2rem',
+        padding: '1.25rem 1rem',
         textAlign: 'center',
         fontSize: '0.75rem',
         color: 'var(--text-muted)',
         backgroundColor: 'var(--bg-secondary)',
-        transition: 'background-color 0.3s ease, border-color 0.3s ease'
+        transition: 'background-color 0.3s ease, border-color 0.3s ease',
+        marginBottom: session ? '60px' : '0'
       }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
           <span>&copy; {new Date().getFullYear()} LegalJobs &mdash; Premier Indian Legal Internship & Chambers Platform.</span>

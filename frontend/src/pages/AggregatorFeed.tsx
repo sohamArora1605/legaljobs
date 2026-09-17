@@ -48,33 +48,22 @@ export const AggregatorFeed: React.FC<AggregatorFeedProps> = ({
   });
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+    <div className="responsive-container">
       {/* Header Banner */}
-      <div style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-gold)',
-        borderRadius: '16px',
-        padding: '2rem',
-        marginBottom: '2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: 'var(--shadow-luxury)',
-        transition: 'var(--transition-smooth)'
-      }}>
+      <div className="responsive-banner">
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '2px 10px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-blue)', marginBottom: '0.75rem' }}>
             <Globe size={14} /> LIVE AGGREGATOR PIPELINE
           </div>
-          <h1 className="font-serif gold-gradient-text" style={{ fontSize: '2.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+          <h1 className="font-serif gold-gradient-text responsive-title">
             Live Feed: LawBhoomi & Lawctopus
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '750px', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', maxWidth: '750px', lineHeight: 1.5 }}>
             Automated intelligence retrieval adhering to strict polite limits: polls the top 3 pages with deterministic slug deduplication. Zero site bombardment, clean metadata extraction with direct apply links and contact emails.
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.75rem' }}>
           {isAdmin && (
             <button
               onClick={handleSyncClick}
@@ -103,12 +92,12 @@ export const AggregatorFeed: React.FC<AggregatorFeedProps> = ({
       {/* Filter Bar */}
       <div style={{
         display: 'flex',
-        gap: '1rem',
-        marginBottom: '1.75rem',
+        gap: '0.75rem',
+        marginBottom: '1.5rem',
         flexWrap: 'wrap',
         alignItems: 'center',
         background: 'var(--bg-subtle)',
-        padding: '1rem 1.25rem',
+        padding: '0.85rem 1rem',
         borderRadius: '12px',
         border: '1px solid var(--border-color)',
         boxShadow: 'var(--shadow-luxury)'
@@ -208,11 +197,7 @@ export const AggregatorFeed: React.FC<AggregatorFeedProps> = ({
           </button>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
-          gap: '1.5rem'
-        }}>
+        <div className="responsive-card-grid">
           {filteredOpps.map((opp) => {
             const isTracked = trackedExternalIds.has(opp.externalId);
 
@@ -312,6 +297,8 @@ export const AggregatorFeed: React.FC<AggregatorFeedProps> = ({
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
                   borderTop: '1px solid var(--border-color)',
                   paddingTop: '0.85rem'
                 }}>

@@ -102,7 +102,7 @@ export const AddCustomJobModal: React.FC<AddCustomJobModalProps> = ({ onClose, o
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="responsive-form-grid-2" style={{ gap: '0.75rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '4px' }}>
                 Role / Title
@@ -143,7 +143,7 @@ export const AddCustomJobModal: React.FC<AddCustomJobModalProps> = ({ onClose, o
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="responsive-form-grid-2" style={{ gap: '0.75rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '4px' }}>
                 Application Status
@@ -189,7 +189,7 @@ export const AddCustomJobModal: React.FC<AddCustomJobModalProps> = ({ onClose, o
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="responsive-form-grid-2" style={{ gap: '0.75rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '4px' }}>
                 Contact / HR Email

@@ -153,7 +153,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
   };
 
   return (
-    <div className="space-y-8 animate-fadeIn">
+    <div className="responsive-container space-y-8 animate-fadeIn">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#2d3748] pb-6">
         <div>

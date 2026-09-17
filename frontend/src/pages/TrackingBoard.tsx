@@ -24,51 +24,42 @@ export const TrackingBoard: React.FC<TrackingBoardProps> = ({
   onOpenAddModal
 }) => {
   return (
-    <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '2rem' }}>
+    <div className="responsive-container">
       {/* Header Banner */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2rem'
-      }}>
+      <div className="responsive-banner">
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(212, 175, 55, 0.1)', border: '1px solid rgba(212, 175, 55, 0.3)', padding: '2px 10px', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, color: '#facc15', marginBottom: '0.5rem' }}>
             <Kanban size={14} /> PIPELINE WORKSPACE
           </div>
-          <h1 className="font-serif gold-gradient-text" style={{ fontSize: '2.25rem', fontWeight: 800 }}>
+          <h1 className="font-serif gold-gradient-text responsive-title">
             Personal Application Board
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.5 }}>
             Track application progression across the 100 Law Firms, Live Aggregators, or custom external applications.
           </p>
         </div>
 
-        <button onClick={onOpenAddModal} className="btn-gold" style={{ padding: '0.75rem 1.25rem' }}>
+        <button onClick={onOpenAddModal} className="btn-gold" style={{ padding: '0.75rem 1.25rem', whiteSpace: 'nowrap' }}>
           <Plus size={16} />
-          <span>+ Add External Application</span>
+          <span>+ Add Application</span>
         </button>
       </div>
 
       {/* Kanban Columns */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gap: '1.25rem',
-        alignItems: 'flex-start'
-      }}>
+      <div className="kanban-scroll-track">
         {COLUMNS.map(col => {
           const colApps = applications.filter(a => a.status === col.id);
 
           return (
             <div
               key={col.id}
+              className="kanban-column-snap"
               style={{
                 background: 'var(--bg-subtle)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '12px',
                 padding: '1rem',
-                minHeight: '680px',
+                minHeight: '600px',
                 display: 'flex',
                 flexDirection: 'column',
                 boxShadow: 'var(--shadow-luxury)'
