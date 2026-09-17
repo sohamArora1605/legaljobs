@@ -17,6 +17,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // API Routes
 app.use('/api', routes);
 
+// Direct root /health endpoint shortcut for external cron monitoring
+app.get('/health', (_req, res) => {
+  res.redirect('/api/health');
+});
+
 // Serve built frontend assets if public directory exists (Single-Container / Docker / Render)
 const publicDir = path.resolve(process.cwd(), 'public');
 app.use(express.static(publicDir));
