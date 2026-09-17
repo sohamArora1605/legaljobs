@@ -1,6 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export interface User {
   id: string;
@@ -104,7 +108,17 @@ interface DatabaseSchema {
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
+// Mongoose schema for persistent MongoDB Atlas storage
+const AtlasStateSchema = new mongoose.Schema({
+  key: { type: String, unique: true, default: 'main_state' },
+  data: { type: mongoose.Schema.Types.Mixed, required: true },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const AtlasStateModel = mongoose.models.LegalJobsState || mongoose.model('LegalJobsState', AtlasStateSchema);
+
 class JSONDatabase {
+  private isAtlasConnected = false;
   private data: DatabaseSchema = {
     users: [],
     firms: [],
@@ -122,6 +136,37 @@ class JSONDatabase {
 
   constructor() {
     this.init();
+    this.connectAtlas();
+  }
+
+  private async connectAtlas() {
+    const mongoUri = process.env.MONGODB_URI;
+    if (!mongoUri) return;
+
+    try {
+      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 8000 });
+      this.isAtlasConnected = true;
+      console.log('🍃 MongoDB Atlas connected successfully.');
+
+      // Load state from Atlas if available
+      const record = await AtlasStateModel.findOne({ key: 'main_state' });
+      if (record && record.data) {
+        // Merge cloud data with local memory
+        this.data = { ...this.data, ...record.data };
+        console.log(`🍃 Synced state from MongoDB Atlas (${this.data.opportunities.length} opportunities, ${this.data.users.length} users).`);
+      } else {
+        // Push initial state to Atlas
+        await AtlasStateModel.findOneAndUpdate(
+          { key: 'main_state' },
+          { data: this.data, updatedAt: new Date() },
+          { upsert: true }
+        );
+        console.log('🍃 Initial state uploaded to MongoDB Atlas.');
+      }
+    } catch (err: any) {
+      console.warn(`[MongoDB Atlas] Connection notice (${err.message}). Using local database engine.`);
+      this.isAtlasConnected = false;
+    }
   }
 
   private init() {
@@ -184,6 +229,17 @@ class JSONDatabase {
       fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
     } catch (err) {
       console.error('Error writing to db.json:', err);
+    }
+
+    // Dual-write to MongoDB Atlas in background if connected
+    if (this.isAtlasConnected) {
+      AtlasStateModel.findOneAndUpdate(
+        { key: 'main_state' },
+        { data: this.data, updatedAt: new Date() },
+        { upsert: true }
+      ).catch((err: any) => {
+        console.error('Error syncing state to MongoDB Atlas:', err.message);
+      });
     }
   }
 
