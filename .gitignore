@@ -11,7 +11,7 @@ build/
 # Environment variables & secrets
 .env
 .env.*
-!.env.example
+.env.example
 *.local
 
 # Database runtime files (prevent committing private candidate data/resumes)
