@@ -9,7 +9,7 @@ import { AuthPage } from './pages/AuthPage';
 import { EmailTemplateModal } from './components/EmailTemplateModal';
 import { PortalVerifyModal } from './components/PortalVerifyModal';
 import { AddCustomJobModal } from './components/AddCustomJobModal';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Building2, Globe, LogIn } from 'lucide-react';
 import { LegalFirm, Opportunity, Application, CandidateProfile, UserSession, User } from './types';
 import { API_BASE } from './config';
 
@@ -368,36 +368,45 @@ function App() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
             <button
               onClick={() => setCurrentTab('directory')}
-              className="desktop-nav"
               style={{
-                background: 'transparent',
-                border: 'none',
+                background: currentTab === 'directory' ? 'rgba(212, 175, 55, 0.15)' : 'transparent',
+                border: currentTab === 'directory' ? '1px solid var(--border-gold)' : '1px solid transparent',
                 color: currentTab === 'directory' ? 'var(--gold-primary)' : 'var(--text-secondary)',
                 fontWeight: currentTab === 'directory' ? 700 : 500,
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer',
-                padding: '0.4rem 0.6rem'
+                padding: '0.4rem 0.65rem',
+                borderRadius: '8px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
               }}
             >
-              100 Law Firms
+              <Building2 size={15} />
+              <span>100 Firms</span>
             </button>
+
             <button
               onClick={() => setCurrentTab('aggregator')}
-              className="desktop-nav"
               style={{
-                background: 'transparent',
-                border: 'none',
+                background: currentTab === 'aggregator' ? 'rgba(212, 175, 55, 0.15)' : 'transparent',
+                border: currentTab === 'aggregator' ? '1px solid var(--border-gold)' : '1px solid transparent',
                 color: currentTab === 'aggregator' ? 'var(--gold-primary)' : 'var(--text-secondary)',
                 fontWeight: currentTab === 'aggregator' ? 700 : 500,
-                fontSize: '0.85rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer',
-                padding: '0.4rem 0.6rem'
+                padding: '0.4rem 0.65rem',
+                borderRadius: '8px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
               }}
             >
-              Live Feed
+              <Globe size={15} />
+              <span>Live Feed</span>
             </button>
 
             {/* Theme Toggle Button in Public Header */}
@@ -409,7 +418,7 @@ function App() {
                 border: '1px solid var(--border-gold)',
                 color: theme === 'dark' ? '#facc15' : '#b45309',
                 borderRadius: '8px',
-                padding: '0.4rem 0.6rem',
+                padding: '0.4rem 0.55rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -421,13 +430,12 @@ function App() {
               }}
             >
               {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-              <span className="desktop-nav">{theme === 'dark' ? 'Light' : 'Dark'}</span>
             </button>
 
             <button
               onClick={() => setCurrentTab('auth')}
               className="btn-gold"
-              style={{ padding: '0.45rem 0.9rem', fontSize: '0.8rem', minHeight: '34px' }}
+              style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', minHeight: '34px' }}
             >
               Sign In
             </button>
@@ -435,7 +443,7 @@ function App() {
         </header>
       )}
 
-      <main className="flex-1 w-full mx-auto" style={{ paddingBottom: session ? '72px' : '0' }}>
+      <main className="flex-1 w-full mx-auto" style={{ paddingBottom: '72px' }}>
         {currentTab === 'auth' && (
           <AuthPage
             onSuccess={handleLoginSuccess}
@@ -496,13 +504,78 @@ function App() {
         color: 'var(--text-muted)',
         backgroundColor: 'var(--bg-secondary)',
         transition: 'background-color 0.3s ease, border-color 0.3s ease',
-        marginBottom: session ? '60px' : '0'
+        marginBottom: '60px'
       }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
           <span>&copy; {new Date().getFullYear()} LegalJobs &mdash; Premier Indian Legal Internship & Chambers Platform.</span>
           <span style={{ color: 'var(--gold-primary)', fontWeight: 600 }}>Tailored for Bangalore & National Chambers</span>
         </div>
       </footer>
+
+      {/* Mobile Bottom Navigation for Guest Visitors */}
+      {!session && (
+        <nav className="mobile-bottom-nav">
+          <button
+            onClick={() => setCurrentTab('directory')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: currentTab === 'directory' ? 'var(--gold-primary)' : 'var(--text-secondary)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '2px',
+              fontSize: '0.7rem',
+              fontWeight: currentTab === 'directory' ? 700 : 500,
+              cursor: 'pointer',
+              padding: '4px 8px'
+            }}
+          >
+            <Building2 size={18} />
+            <span>100 Firms</span>
+          </button>
+
+          <button
+            onClick={() => setCurrentTab('aggregator')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: currentTab === 'aggregator' ? 'var(--gold-primary)' : 'var(--text-secondary)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '2px',
+              fontSize: '0.7rem',
+              fontWeight: currentTab === 'aggregator' ? 700 : 500,
+              cursor: 'pointer',
+              padding: '4px 8px'
+            }}
+          >
+            <Globe size={18} />
+            <span>Live Feed</span>
+          </button>
+
+          <button
+            onClick={() => setCurrentTab('auth')}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: currentTab === 'auth' ? 'var(--gold-primary)' : 'var(--text-secondary)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '2px',
+              fontSize: '0.7rem',
+              fontWeight: currentTab === 'auth' ? 700 : 500,
+              cursor: 'pointer',
+              padding: '4px 8px'
+            }}
+          >
+            <LogIn size={18} />
+            <span>Sign In</span>
+          </button>
+        </nav>
+      )}
 
       {/* Modals */}
       {emailModalFirm && (

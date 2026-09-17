@@ -467,7 +467,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab, sessi
           }}
         >
           <Globe size={18} />
-          <span>Feed</span>
+          <span>Live Feed</span>
         </button>
 
         <button
