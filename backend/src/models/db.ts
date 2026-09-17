@@ -225,21 +225,24 @@ class JSONDatabase {
   }
 
   public save() {
-    try {
-      fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
-    } catch (err) {
-      console.error('Error writing to db.json:', err);
-    }
-
-    // Dual-write to MongoDB Atlas in background if connected
+    // Write to MongoDB Atlas first if connected
     if (this.isAtlasConnected) {
       AtlasStateModel.findOneAndUpdate(
         { key: 'main_state' },
         { data: this.data, updatedAt: new Date() },
         { upsert: true }
       ).catch((err: any) => {
-        console.error('Error syncing state to MongoDB Atlas:', err.message);
+        console.error('[MongoDB Atlas] Sync warning:', err.message);
       });
+    }
+
+    // Attempt local cache write (gracefully ignored in read-only / serverless environments)
+    try {
+      if (fs.existsSync(DATA_DIR)) {
+        fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
+      }
+    } catch (_ignore) {
+      // Ephemeral or read-only filesystem (Render/Vercel) - Atlas handles persistence
     }
   }
 
