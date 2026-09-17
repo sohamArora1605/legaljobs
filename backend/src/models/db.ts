@@ -96,273 +96,450 @@ export interface ScraperStats {
   lastError?: string;
 }
 
-interface DatabaseSchema {
-  users: User[];
-  firms: LegalFirm[];
-  opportunities: Opportunity[];
-  applications: Application[];
-  profiles: CandidateProfile[];
-  scraperStats: ScraperStats;
-}
+// Mongoose Schemas & Models for Native MongoDB Collections
+const UserSchema = new mongoose.Schema<User>({
+  id: { type: String, required: true, unique: true, index: true },
+  username: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  passwordHash: { type: String, required: true },
+  role: { type: String, enum: ['admin', 'user'], default: 'user' },
+  createdAt: { type: String, default: () => new Date().toISOString() },
+}, { versionKey: false });
 
-const DATA_DIR = path.resolve(__dirname, '../../data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+const LegalFirmSchema = new mongoose.Schema<LegalFirm>({
+  id: { type: String, required: true, unique: true, index: true },
+  name: { type: String, required: true },
+  tier: { type: String, default: 'Tier B' },
+  website: { type: String, default: '' },
+  career_url: { type: String, default: '' },
+  internship_url: { type: String, default: '' },
+  modality: { type: String, default: 'button_form' },
+  button_interaction: { type: String, default: '' },
+  application_email: { type: String, default: '' },
+  query_only_email: { type: String, default: '' },
+  location: { type: String, default: '' },
+  instructions: { type: String, default: '' },
+}, { versionKey: false });
 
-// Mongoose schema for persistent MongoDB Atlas storage
-const AtlasStateSchema = new mongoose.Schema({
-  key: { type: String, unique: true, default: 'main_state' },
-  data: { type: mongoose.Schema.Types.Mixed, required: true },
-  updatedAt: { type: Date, default: Date.now }
-});
+const OpportunitySchema = new mongoose.Schema<Opportunity>({
+  id: { type: String, required: true },
+  externalId: { type: String, required: true, unique: true, index: true },
+  source: { type: String, required: true },
+  title: { type: String, required: true },
+  company: { type: String, default: 'Legal Chambers / Firm' },
+  location: { type: String, default: 'India' },
+  mode: { type: String, default: 'onsite' },
+  stipend: { type: String, default: 'Not specified' },
+  applyUrl: { type: String, default: '' },
+  applyEmail: { type: String, default: '' },
+  description: { type: String, default: '' },
+  publishedAt: { type: String, default: () => new Date().toISOString() },
+  scrapedAt: { type: String, default: () => new Date().toISOString() },
+  tags: { type: [String], default: [] },
+}, { versionKey: false });
 
-const AtlasStateModel = mongoose.models.LegalJobsState || mongoose.model('LegalJobsState', AtlasStateSchema);
+const ApplicationSchema = new mongoose.Schema<Application>({
+  id: { type: String, required: true, unique: true, index: true },
+  userId: { type: String, required: true, index: true },
+  companyName: { type: String, required: true },
+  opportunityId: { type: String, default: '' },
+  source: { type: String, default: 'outsourced' },
+  roleTitle: { type: String, default: 'Legal Intern' },
+  location: { type: String, default: 'Bengaluru' },
+  status: { type: String, enum: ['saved', 'applied', 'interview', 'offer', 'rejected'], default: 'saved' },
+  appliedDate: { type: String, default: '' },
+  deadline: { type: String, default: '' },
+  notes: { type: String, default: '' },
+  contactEmail: { type: String, default: '' },
+  portalUrl: { type: String, default: '' },
+  createdAt: { type: String, default: () => new Date().toISOString() },
+  updatedAt: { type: String, default: () => new Date().toISOString() },
+}, { versionKey: false });
 
-class JSONDatabase {
-  private isAtlasConnected = false;
-  private data: DatabaseSchema = {
-    users: [],
-    firms: [],
-    opportunities: [],
-    applications: [],
-    profiles: [],
-    scraperStats: {
-      lastScrapedAt: null,
-      totalScraped: 0,
-      lawbhoomiCount: 0,
-      lawctopusCount: 0,
-      status: 'idle',
-    }
-  };
+const CandidateProfileSchema = new mongoose.Schema<CandidateProfile>({
+  userId: { type: String, required: true, unique: true, index: true },
+  fullName: { type: String, default: 'Legal Candidate' },
+  email: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  college: { type: String, default: 'National Law School / Law University' },
+  degree: { type: String, default: 'B.A. LL.B. (Hons.)' },
+  yearOfStudy: { type: String, default: '4th Year' },
+  passingYear: { type: String, default: '2027' },
+  cgpa: { type: String, default: '8.4 / 10' },
+  preferredPractice: { type: String, default: 'Corporate & M&A, Commercial Litigation' },
+  preferredLocation: { type: String, default: 'Bengaluru, Mumbai' },
+  availability: { type: String, default: 'May - July 2026' },
+  linkedIn: { type: String, default: 'https://linkedin.com/in/' },
+  coverLetterTemplate: {
+    type: String,
+    default: `Dear Recruitment Team at {firm_name},\n\nI am writing to express my strong interest in an internship opportunity at {firm_name} in {practice_area} at your {location} office for the period of {availability}.\n\nI am currently a {year} student pursuing {degree} at {college}, with a CGPA of {cgpa}. Having closely tracked {firm_name}'s stellar work in commercial transactions and disputes, I am eager to contribute with high-rigor legal research and drafting.\n\nThank you for your consideration.\n\nSincerely,\n{full_name}\n{phone}\n{email}`,
+  },
+  resumePath: { type: String, default: '' },
+  resumeFileName: { type: String, default: '' },
+  resumeFileSize: { type: Number, default: 0 },
+  resumeBase64: { type: String, default: '' },
+  achievements: { type: String, default: 'National Moot Court semi-finalist; Published 2 articles on corporate governance.' },
+  updatedAt: { type: String, default: () => new Date().toISOString() },
+}, { versionKey: false });
+
+const ScraperStatsSchema = new mongoose.Schema<ScraperStats & { key: string }>({
+  key: { type: String, unique: true, default: 'global_stats' },
+  lastScrapedAt: { type: String, default: null },
+  totalScraped: { type: Number, default: 0 },
+  lawbhoomiCount: { type: Number, default: 0 },
+  lawctopusCount: { type: Number, default: 0 },
+  status: { type: String, enum: ['idle', 'running', 'error'], default: 'idle' },
+  lastError: { type: String, default: '' },
+}, { versionKey: false });
+
+export const UserModel = mongoose.models.User || mongoose.model<User>('User', UserSchema);
+export const FirmModel = mongoose.models.LegalFirm || mongoose.model<LegalFirm>('LegalFirm', LegalFirmSchema);
+export const OpportunityModel = mongoose.models.Opportunity || mongoose.model<Opportunity>('Opportunity', OpportunitySchema);
+export const ApplicationModel = mongoose.models.Application || mongoose.model<Application>('Application', ApplicationSchema);
+export const ProfileModel = mongoose.models.CandidateProfile || mongoose.model<CandidateProfile>('CandidateProfile', CandidateProfileSchema);
+export const ScraperStatsModel = mongoose.models.ScraperStats || mongoose.model<ScraperStats & { key: string }>('ScraperStats', ScraperStatsSchema);
+
+class MongoDatabase {
+  private isConnected = false;
+  private connectionPromise: Promise<void> | null = null;
 
   constructor() {
-    this.init();
-    this.connectAtlas();
+    this.connectionPromise = this.init();
   }
 
-  private async connectAtlas() {
+  public async init(): Promise<void> {
     const mongoUri = process.env.MONGODB_URI;
-    if (!mongoUri) return;
+    if (!mongoUri) {
+      console.warn('⚠️ MONGODB_URI not found in environment. Running without persistent database.');
+      return;
+    }
 
     try {
-      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 8000 });
-      this.isAtlasConnected = true;
-      console.log('🍃 MongoDB Atlas connected successfully.');
-
-      // Load state from Atlas if available
-      const record = await AtlasStateModel.findOne({ key: 'main_state' });
-      if (record && record.data) {
-        // Merge cloud data with local memory
-        this.data = { ...this.data, ...record.data };
-        console.log(`🍃 Synced state from MongoDB Atlas (${this.data.opportunities.length} opportunities, ${this.data.users.length} users).`);
-      } else {
-        // Push initial state to Atlas
-        await AtlasStateModel.findOneAndUpdate(
-          { key: 'main_state' },
-          { data: this.data, updatedAt: new Date() },
-          { upsert: true }
-        );
-        console.log('🍃 Initial state uploaded to MongoDB Atlas.');
+      if (mongoose.connection.readyState === 0) {
+        await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 10000 });
       }
+      this.isConnected = true;
+      console.log('🍃 MongoDB Atlas connected successfully to native collections.');
+
+      // Check for legacy single-document data in legaljobsstates and migrate if needed
+      await this.checkAndMigrateLegacyData();
+
+      // Seed Legal Firms from firms.json if collection is empty
+      await this.seedFirmsIfEmpty();
+
+      // Seed Default Admin if missing
+      await this.seedDefaultAdmin();
+
+      // Seed Initial Scraper Stats if missing
+      await this.seedScraperStats();
     } catch (err: any) {
-      console.warn(`[MongoDB Atlas] Connection notice (${err.message}). Using local database engine.`);
-      this.isAtlasConnected = false;
+      console.error('❌ Failed to connect to MongoDB Atlas:', err.message);
+      this.isConnected = false;
     }
   }
 
-  private init() {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+  public async waitForConnection(): Promise<void> {
+    if (this.connectionPromise) {
+      await this.connectionPromise;
     }
-
-    if (fs.existsSync(DB_FILE)) {
-      try {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        this.data = JSON.parse(raw);
-      } catch (err) {
-        console.error('Failed to parse db.json, creating fresh:', err);
-      }
-    }
-
-    // Always seed firms from firms.json if empty or incomplete
-    const candidatePaths = [
-      path.resolve(__dirname, '../data/firms.json'),
-      path.resolve(__dirname, '../../src/data/firms.json'),
-      path.resolve(process.cwd(), 'src/data/firms.json'),
-      path.resolve(process.cwd(), 'dist/data/firms.json')
-    ];
-    let firmsJsonPath = candidatePaths.find(p => fs.existsSync(p));
-
-    if (firmsJsonPath) {
-      try {
-        const firmsData: LegalFirm[] = JSON.parse(fs.readFileSync(firmsJsonPath, 'utf-8'));
-        if (!this.data.firms || this.data.firms.length === 0) {
-          this.data.firms = firmsData;
-          console.log(`Seeded ${firmsData.length} legal firms into database from ${firmsJsonPath}.`);
-        }
-      } catch (e) {
-        console.error('Error loading firms.json:', e);
-      }
-    }
-
-    // Seed default admin: username "soham arora", password "easypeasy"
-    const adminUsername = process.env.ADMIN_USERNAME || 'soham arora';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'easypeasy';
-    const existingAdmin = this.data.users.find(u => u.username.toLowerCase() === adminUsername.toLowerCase());
-
-    if (!existingAdmin) {
-      const passwordHash = bcrypt.hashSync(adminPassword, 10);
-      this.data.users.push({
-        id: 'admin_1',
-        username: adminUsername,
-        passwordHash,
-        role: 'admin',
-        createdAt: new Date().toISOString(),
-      });
-      console.log(`Default admin seeded: ${adminUsername}`);
-    }
-
-    this.save();
   }
 
-  public save() {
-    // Write to MongoDB Atlas first if connected
-    if (this.isAtlasConnected) {
-      AtlasStateModel.findOneAndUpdate(
-        { key: 'main_state' },
-        { data: this.data, updatedAt: new Date() },
-        { upsert: true }
-      ).catch((err: any) => {
-        console.error('[MongoDB Atlas] Sync warning:', err.message);
-      });
-    }
+  public getIsConnected(): boolean {
+    return this.isConnected && mongoose.connection.readyState === 1;
+  }
 
-    // Attempt local cache write (gracefully ignored in read-only / serverless environments)
+  private async checkAndMigrateLegacyData() {
     try {
-      if (fs.existsSync(DATA_DIR)) {
-        fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
+      const collections = await mongoose.connection.db!.listCollections().toArray();
+      const hasLegacy = collections.some(c => c.name === 'legaljobsstates');
+      if (!hasLegacy) return;
+
+      const legacyDoc = await mongoose.connection.db!.collection('legaljobsstates').findOne({ key: 'main_state' });
+      if (!legacyDoc || !legacyDoc.data) return;
+
+      const { users, opportunities, applications, profiles } = legacyDoc.data;
+
+      // Migrate Users
+      if (Array.isArray(users) && users.length > 0) {
+        const userCount = await UserModel.countDocuments();
+        if (userCount === 0) {
+          console.log(`[Migration] Migrating ${users.length} users from legacy state to 'users' collection...`);
+          for (const u of users) {
+            await UserModel.updateOne(
+              { username: u.username.toLowerCase() },
+              { $setOnInsert: u },
+              { upsert: true }
+            );
+          }
+        }
       }
-    } catch (_ignore) {
-      // Ephemeral or read-only filesystem (Render/Vercel) - Atlas handles persistence
+
+      // Migrate Opportunities
+      if (Array.isArray(opportunities) && opportunities.length > 0) {
+        const oppCount = await OpportunityModel.countDocuments();
+        if (oppCount === 0) {
+          console.log(`[Migration] Migrating ${opportunities.length} opportunities from legacy state to 'opportunities' collection...`);
+          const bulkOps = opportunities.map((o: Opportunity) => ({
+            updateOne: {
+              filter: { externalId: o.externalId },
+              update: { $setOnInsert: o },
+              upsert: true,
+            }
+          }));
+          await OpportunityModel.bulkWrite(bulkOps);
+        }
+      }
+
+      // Migrate Applications
+      if (Array.isArray(applications) && applications.length > 0) {
+        const appCount = await ApplicationModel.countDocuments();
+        if (appCount === 0) {
+          console.log(`[Migration] Migrating ${applications.length} applications from legacy state...`);
+          for (const a of applications) {
+            await ApplicationModel.updateOne({ id: a.id }, { $setOnInsert: a }, { upsert: true });
+          }
+        }
+      }
+
+      // Migrate Profiles
+      if (Array.isArray(profiles) && profiles.length > 0) {
+        const profCount = await ProfileModel.countDocuments();
+        if (profCount === 0) {
+          console.log(`[Migration] Migrating ${profiles.length} candidate profiles from legacy state...`);
+          for (const p of profiles) {
+            await ProfileModel.updateOne({ userId: p.userId }, { $setOnInsert: p }, { upsert: true });
+          }
+        }
+      }
+
+      console.log('🍃 Legacy state migration check completed.');
+    } catch (migErr: any) {
+      console.warn('[Migration] Notice during legacy data check:', migErr.message);
     }
   }
 
-  // Users
-  public getUsers(): User[] {
-    return this.data.users;
+  private async seedFirmsIfEmpty() {
+    try {
+      const firmCount = await FirmModel.countDocuments();
+      if (firmCount > 0) return;
+
+      const candidatePaths = [
+        path.resolve(__dirname, '../data/firms.json'),
+        path.resolve(__dirname, '../../src/data/firms.json'),
+        path.resolve(process.cwd(), 'src/data/firms.json'),
+        path.resolve(process.cwd(), 'dist/data/firms.json')
+      ];
+      const firmsJsonPath = candidatePaths.find(p => fs.existsSync(p));
+
+      if (firmsJsonPath) {
+        const firmsData: LegalFirm[] = JSON.parse(fs.readFileSync(firmsJsonPath, 'utf-8'));
+        if (firmsData.length > 0) {
+          await FirmModel.insertMany(firmsData);
+          console.log(`🍃 Seeded ${firmsData.length} legal firms into 'firms' collection from ${firmsJsonPath}.`);
+        }
+      }
+    } catch (e: any) {
+      console.error('Error seeding firms into MongoDB:', e.message);
+    }
   }
 
-  public getUserByUsername(username: string): User | undefined {
-    return this.data.users.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+  private async seedDefaultAdmin() {
+    try {
+      const adminUsername = (process.env.ADMIN_USERNAME || 'soham arora').trim().toLowerCase();
+      const adminPassword = process.env.ADMIN_PASSWORD || 'easypeasy';
+
+      const existingAdmin = await UserModel.findOne({ username: adminUsername });
+      if (!existingAdmin) {
+        const passwordHash = bcrypt.hashSync(adminPassword, 10);
+        await UserModel.create({
+          id: 'admin_1',
+          username: adminUsername,
+          passwordHash,
+          role: 'admin',
+          createdAt: new Date().toISOString(),
+        });
+        console.log(`🍃 Default admin seeded in MongoDB: ${adminUsername}`);
+      }
+    } catch (e: any) {
+      console.error('Error seeding default admin:', e.message);
+    }
   }
 
-  public getUserById(id: string): User | undefined {
-    return this.data.users.find(u => u.id === id);
+  private async seedScraperStats() {
+    try {
+      const stats = await ScraperStatsModel.findOne({ key: 'global_stats' });
+      if (!stats) {
+        const total = await OpportunityModel.countDocuments();
+        const lbCount = await OpportunityModel.countDocuments({ source: 'lawbhoomi' });
+        const lcCount = await OpportunityModel.countDocuments({ source: 'lawctopus' });
+        await ScraperStatsModel.create({
+          key: 'global_stats',
+          lastScrapedAt: new Date().toISOString(),
+          totalScraped: total,
+          lawbhoomiCount: lbCount,
+          lawctopusCount: lcCount,
+          status: 'idle',
+        });
+      }
+    } catch (e: any) {
+      console.error('Error seeding scraper stats:', e.message);
+    }
   }
 
-  public addUser(user: User): void {
-    this.data.users.push(user);
-    this.save();
+  // --- Users ---
+  public async getUsers(): Promise<User[]> {
+    return UserModel.find({}, { _id: 0, __v: 0 }).lean();
   }
 
-  public updateUserPassword(userId: string, newHash: string): boolean {
-    const u = this.getUserById(userId);
-    if (!u) return false;
-    u.passwordHash = newHash;
-    this.save();
-    return true;
+  public async getUserByUsername(username: string): Promise<User | null> {
+    return UserModel.findOne(
+      { username: username.trim().toLowerCase() },
+      { _id: 0, __v: 0 }
+    ).lean();
   }
 
-  public deleteUser(userId: string): boolean {
-    const idx = this.data.users.findIndex(u => u.id === userId);
-    if (idx === -1) return false;
-    this.data.users.splice(idx, 1);
-    this.save();
-    return true;
+  public async getUserById(id: string): Promise<User | null> {
+    return UserModel.findOne({ id }, { _id: 0, __v: 0 }).lean();
   }
 
-  // Firms
-  public getFirms(): LegalFirm[] {
-    return this.data.firms;
+  public async addUser(user: User): Promise<User> {
+    const created = await UserModel.create(user);
+    return created.toObject();
   }
 
-  // Opportunities (Scraped)
-  public getOpportunities(): Opportunity[] {
-    return this.data.opportunities;
+  public async updateUserPassword(userId: string, newHash: string): Promise<boolean> {
+    const res = await UserModel.updateOne({ id: userId }, { $set: { passwordHash: newHash } });
+    return res.matchedCount > 0;
   }
 
-  public upsertOpportunities(newItems: Opportunity[]): { added: number; updated: number } {
+  public async deleteUser(userId: string): Promise<boolean> {
+    const res = await UserModel.deleteOne({ id: userId });
+    return res.deletedCount > 0;
+  }
+
+  // --- Firms ---
+  public async getFirms(): Promise<LegalFirm[]> {
+    return FirmModel.find({}, { _id: 0, __v: 0 }).lean();
+  }
+
+  // --- Opportunities ---
+  public async getOpportunities(): Promise<Opportunity[]> {
+    return OpportunityModel.find({}, { _id: 0, __v: 0 })
+      .sort({ publishedAt: -1, scrapedAt: -1 })
+      .lean();
+  }
+
+  public async upsertOpportunities(newItems: Opportunity[]): Promise<{ added: number; updated: number }> {
+    if (!newItems || newItems.length === 0) return { added: 0, updated: 0 };
+
     let added = 0;
     let updated = 0;
 
-    for (const item of newItems) {
-      const existingIdx = this.data.opportunities.findIndex(o => o.externalId === item.externalId);
-      if (existingIdx >= 0) {
-        // Update timestamps and apply URLs without wiping user associations
-        this.data.opportunities[existingIdx] = {
-          ...this.data.opportunities[existingIdx],
-          ...item,
-          id: this.data.opportunities[existingIdx].id, // keep original ID
-          scrapedAt: new Date().toISOString(),
-        };
-        updated++;
-      } else {
-        this.data.opportunities.unshift(item);
-        added++;
+    const bulkOps = newItems.map(item => ({
+      updateOne: {
+        filter: { externalId: item.externalId },
+        update: {
+          $set: {
+            source: item.source,
+            title: item.title,
+            company: item.company,
+            location: item.location,
+            mode: item.mode,
+            stipend: item.stipend,
+            applyUrl: item.applyUrl,
+            applyEmail: item.applyEmail,
+            description: item.description,
+            tags: item.tags,
+            scrapedAt: new Date().toISOString(),
+          },
+          $setOnInsert: {
+            id: item.id,
+            externalId: item.externalId,
+            publishedAt: item.publishedAt || new Date().toISOString(),
+          }
+        },
+        upsert: true
       }
-    }
+    }));
 
-    // Update stats
-    this.data.scraperStats.lastScrapedAt = new Date().toISOString();
-    this.data.scraperStats.totalScraped = this.data.opportunities.length;
-    this.data.scraperStats.lawbhoomiCount = this.data.opportunities.filter(o => o.source === 'lawbhoomi').length;
-    this.data.scraperStats.lawctopusCount = this.data.opportunities.filter(o => o.source === 'lawctopus').length;
+    const result = await OpportunityModel.bulkWrite(bulkOps);
+    added = result.upsertedCount;
+    updated = result.modifiedCount;
 
-    this.save();
+    // Refresh scraper stats directly from native collection counts
+    const total = await OpportunityModel.countDocuments();
+    const lbCount = await OpportunityModel.countDocuments({ source: 'lawbhoomi' });
+    const lcCount = await OpportunityModel.countDocuments({ source: 'lawctopus' });
+
+    await ScraperStatsModel.updateOne(
+      { key: 'global_stats' },
+      {
+        $set: {
+          lastScrapedAt: new Date().toISOString(),
+          totalScraped: total,
+          lawbhoomiCount: lbCount,
+          lawctopusCount: lcCount,
+          status: 'idle',
+        }
+      },
+      { upsert: true }
+    );
+
     return { added, updated };
   }
 
-  public getScraperStats(): ScraperStats {
-    return this.data.scraperStats;
+  public async getScraperStats(): Promise<ScraperStats> {
+    const stats = await ScraperStatsModel.findOne({ key: 'global_stats' }, { _id: 0, __v: 0, key: 0 }).lean();
+    if (stats) return stats as ScraperStats;
+
+    const total = await OpportunityModel.countDocuments();
+    const lbCount = await OpportunityModel.countDocuments({ source: 'lawbhoomi' });
+    const lcCount = await OpportunityModel.countDocuments({ source: 'lawctopus' });
+    return {
+      lastScrapedAt: null,
+      totalScraped: total,
+      lawbhoomiCount: lbCount,
+      lawctopusCount: lcCount,
+      status: 'idle'
+    };
   }
 
-  public setScraperStatus(status: 'idle' | 'running' | 'error', errorMsg?: string) {
-    this.data.scraperStats.status = status;
-    if (errorMsg) this.data.scraperStats.lastError = errorMsg;
-    this.save();
+  public async setScraperStatus(status: 'idle' | 'running' | 'error', errorMsg?: string): Promise<void> {
+    const update: any = { status };
+    if (errorMsg !== undefined) update.lastError = errorMsg;
+    await ScraperStatsModel.updateOne({ key: 'global_stats' }, { $set: update }, { upsert: true });
   }
 
-  // Tracking Board (Applications)
-  public getApplications(userId: string): Application[] {
-    return this.data.applications.filter(a => a.userId === userId);
+  // --- Applications (Tracking Board) ---
+  public async getApplications(userId: string): Promise<Application[]> {
+    return ApplicationModel.find({ userId }, { _id: 0, __v: 0 })
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .lean();
   }
 
-  public addApplication(app: Application): Application {
-    this.data.applications.unshift(app);
-    this.save();
-    return app;
+  public async addApplication(app: Application): Promise<Application> {
+    const created = await ApplicationModel.create(app);
+    return created.toObject();
   }
 
-  public updateApplication(id: string, userId: string, updates: Partial<Application>): Application | null {
-    const app = this.data.applications.find(a => a.id === id && a.userId === userId);
-    if (!app) return null;
-    Object.assign(app, updates, { updatedAt: new Date().toISOString() });
-    this.save();
-    return app;
+  public async updateApplication(id: string, userId: string, updates: Partial<Application>): Promise<Application | null> {
+    const updated = await ApplicationModel.findOneAndUpdate(
+      { id, userId },
+      { $set: { ...updates, updatedAt: new Date().toISOString() } },
+      { new: true, projection: { _id: 0, __v: 0 } }
+    ).lean();
+    return updated;
   }
 
-  public deleteApplication(id: string, userId: string): boolean {
-    const idx = this.data.applications.findIndex(a => a.id === id && a.userId === userId);
-    if (idx === -1) return false;
-    this.data.applications.splice(idx, 1);
-    this.save();
-    return true;
+  public async deleteApplication(id: string, userId: string): Promise<boolean> {
+    const res = await ApplicationModel.deleteOne({ id, userId });
+    return res.deletedCount > 0;
   }
 
-  // Candidate Profile
-  public getProfile(userId: string): CandidateProfile {
-    let p = this.data.profiles.find(prof => prof.userId === userId);
+  // --- Candidate Profile ---
+  public async getProfile(userId: string): Promise<CandidateProfile> {
+    let p = await ProfileModel.findOne({ userId }, { _id: 0, __v: 0 }).lean();
     if (!p) {
-      p = {
+      const defaultProfile: CandidateProfile = {
         userId,
         fullName: 'Legal Candidate',
         email: '',
@@ -381,18 +558,20 @@ class JSONDatabase {
         achievements: 'National Moot Court semi-finalist; Published 2 articles on corporate governance.',
         updatedAt: new Date().toISOString(),
       };
-      this.data.profiles.push(p);
-      this.save();
+      await ProfileModel.create(defaultProfile);
+      return defaultProfile;
     }
-    return p;
+    return p as CandidateProfile;
   }
 
-  public updateProfile(userId: string, updates: Partial<CandidateProfile>): CandidateProfile {
-    const p = this.getProfile(userId);
-    Object.assign(p, updates, { updatedAt: new Date().toISOString() });
-    this.save();
-    return p;
+  public async updateProfile(userId: string, updates: Partial<CandidateProfile>): Promise<CandidateProfile> {
+    const updated = await ProfileModel.findOneAndUpdate(
+      { userId },
+      { $set: { ...updates, updatedAt: new Date().toISOString() } },
+      { new: true, upsert: true, projection: { _id: 0, __v: 0 } }
+    ).lean();
+    return updated as CandidateProfile;
   }
 }
 
-export const db = new JSONDatabase();
+export const db = new MongoDatabase();

@@ -41,6 +41,7 @@ git push origin main
    * `ADMIN_USERNAME` = `soham arora`
    * `ADMIN_PASSWORD` = `easypeasy`
    * `JWT_SECRET` = (enter any random secure string, e.g. `chambers_legaljobs_secret_2026_x99`)
+   * `MONGODB_URI` = `mongodb+srv://sankalptestinfo11:<db_password>@cluster0.9tocg.mongodb.net/legaljobs?retryWrites=true&w=majority&appName=Cluster0`
 6. Click **Deploy Web Service**.
 
 Render will build both the frontend and backend, launch your service, and give you an active URL like:
@@ -69,26 +70,25 @@ If you prefer Vercel's fast global CDN for the frontend:
 
 ---
 
-## ⏰ Keeping the 5-Hour Scraper Running for Free (cron-job.org)
+## ⏰ Keeping Render Awake 24/7 for Free (cron-job.org)
 
-Render free-tier containers go to sleep after 15 minutes of inactivity. When asleep, in-memory `node-cron` timers pause. 
+Render free-tier containers go to sleep after 15 minutes of inactivity.
 
-To keep the scraper running **accurately every 5 hours for 100% free**:
+To keep Render awake 24/7 without risking IP bans or CPU overload:
 
 1. Create a free account at **[cron-job.org](https://cron-job.org)**.
 2. Click **Create Cronjob**.
 3. Set the fields:
-   * **Title**: `LegalJobs 5-Hour Internship Scraper`
-   * **URL**: `https://<YOUR-RENDER-BACKEND-URL>/api/opportunities/scrape`
-     *(Example: `https://legaljobs.onrender.com/api/opportunities/scrape`)*
-   * **Request Method**: `POST`
-   * **Schedule**: Choose **Every 5 hours** (or custom cron `0 */5 * * *`).
+   * **Title**: `LegalJobs 10-Min Keep-Alive`
+   * **URL**: `https://<YOUR-RENDER-BACKEND-URL>/api/health`
+     *(Example: `https://legaljobs.onrender.com/api/health`)*
+   * **Request Method**: `GET`
+   * **Schedule**: Choose **Every 10 minutes** (or custom cron `*/10 * * * *`).
 4. Click **Save**.
 
-### Why this works:
-1. Every 5 hours, `cron-job.org` sends an HTTP POST request to your scraper endpoint.
-2. If Render is asleep, this request automatically **wakes it up**.
-3. The scraper polls the top 3 pages of Bengaluru opportunities from Lawctopus and LawBhoomi, deduplicates them, updates the database, and returns `HTTP 200`.
+> [!TIP]
+> **Why `/api/health` instead of scraping?**
+> Hitting `/api/health` uses virtually zero CPU and 0 bandwidth, perfectly keeping the container awake without triggering scraper requests to external sites (which avoids Cloudflare rate limits and Render CPU throttling). The internship scraper runs automatically inside the backend on an automated 5-hour schedule.
 
 ---
 

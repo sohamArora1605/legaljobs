@@ -37,8 +37,10 @@ initScraperScheduler();
 setTimeout(async () => {
   try {
     const { db } = await import('./models/db.js');
-    if (db.getOpportunities().length === 0) {
-      console.log('[Init] Opportunities table empty. Running initial background scrape (Top 3 pages)...');
+    await db.waitForConnection();
+    const opportunities = await db.getOpportunities();
+    if (opportunities.length === 0) {
+      console.log('[Init] Opportunities collection empty. Running initial background scrape (Top 3 pages)...');
       await runScrapers();
     }
   } catch (e) {
